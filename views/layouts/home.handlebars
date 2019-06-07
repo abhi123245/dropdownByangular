@@ -1,0 +1,194 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <style>
+    .pagination a {
+  color: black;
+  float: left;
+  padding: 8px 8px;
+  text-decoration: none;
+  transition: background-color .3s;
+}
+
+.pagination a.active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+body{
+background-color:lightblue;
+color: black;
+font-size:30px;
+
+}
+marquee{
+background-color:black;
+font-size:34px;
+color: black;
+ behavior:scroll ;
+  direction:up;
+}
+fieldset{
+height: 300px;
+width: 95%;
+}
+input{
+font-size: 24px;
+margin-top:40px;
+
+}
+p{
+font-size: 24px;
+margin-top:30px;
+color:black;
+
+}
+</style>
+</head>
+
+<body>
+  <script language="javascript" type="text/javascript">
+  var globaldata;
+  function call(page) {
+    data = globaldata;
+    perPage = 2;
+    basePage = page * perPage
+    var mydata = data.slice(basePage, basePage + perPage);
+    var cc = [];
+    cc.push('<div class="container">' + ' <table class="table">' + '<tr>' + '<th>#</th>' + '<th>Customer_name</th>' +
+      '<th>Customer_email</th>' + '<th>Customer_age</th>'
+      + '<th>Agent_id</th>' + '<th>Cranch_name</th>');
+    for (var i = 0; i < mydata.length; i++) {
+      cc.push('<tr>' + '<td>+' + i + '</td>' + '<td>' + mydata[i].customer_name + '</td>' +
+        '<td>' + mydata[i].customer_email + '</td>' + '<td>' + mydata[i].customer_age + '</td>'
+        + '<td>' + mydata[i].agent_id + '</td>' + '<td>' + mydata[i].branch_name + '</td>'
+      )
+    }
+
+
+    for (var i = 0; i < data.length / 2; i++) {
+      cc.push('<div class="pagination">' +
+        '<a  href="javascript:call(' + i + ')">' + i + '</a>' +
+        '</div>')
+    }
+    document.getElementById("customer").innerHTML = cc
+  }
+  function callstaff(Tl_id) {
+    var Tl_id = {
+      value: Tl_id
+    }
+    var cc = [];
+
+    var xhr = new XMLHttpRequest()
+
+    xhr.open('post', '/findstaff', true)
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+    xhr.send(JSON.stringify(Tl_id))
+
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+
+        var data = xhr.responseText;
+
+        var mydata = JSON.parse(data);
+
+
+
+
+        cc.push('<div class="form-group">' + '  <label class="control-label col-sm-offset-0 col-sm-1" for="company">' + '</label>' +
+          ' <div class="col-sm-6 col-md-2">' +
+          '<select id="company" class="form-control" onchange="javascript: callcustomer(this.options[this.selectedIndex].value)">' +
+          ' <option value="">SELECT STAFF</option>")');
+        for (var i = 0; i < 2; i++) {
+          cc.push(' <option value=' + mydata[i].agent_id + '>' + mydata[i].agent_name + '</option>")')
+        }
+        cc.push('</div>' +
+          '</div>' +
+          '</div>' +
+          '</div>'
+        )
+        document.getElementById("staff").innerHTML = cc
+      }
+    };
+  }
+
+  function callcustomer(staff_id) {
+    var staff_id = {
+      value: staff_id
+    }
+
+    var xhr = new XMLHttpRequest()
+
+    xhr.open('post', 'findcustomer', true)
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+    xhr.send(JSON.stringify(staff_id))
+
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+
+        var data = xhr.responseText;
+
+
+
+
+        var mydata = JSON.parse(data);
+        globaldata = mydata;
+        call(0);
+
+
+      }
+    }
+  };
+
+
+</script>
+<div class="container">
+  <center>
+    <p>you are logged in</p>
+  </center>
+</div>
+
+<marquee hspace=10 behavior="alternate" VSPACE="10" loop="2"></marquee>
+{{#forTL data.[1].agent_rol}}
+<div class="form-group">
+  <label class="control-label col-sm-offset-0 col-sm-1" for="company"></label>
+  <div class="col-sm-6 col-md-2">
+    <select id="Company" class="form-control" name="Company" onchange="javascript: callstaff(this.options[this.selectedIndex].value)">
+<option value="">Select Tl</option>
+{{#each data}}
+<option value="{{this.agent_id}}">{{this.agent_name}}</option>
+{{/each}}
+</select>
+</div>
+</div>
+{{/forTL}} {{#forStaff data.[1].agent_rol}}
+<div class="form-group">
+  <label class="control-label col-sm-offset-0 col-sm-1" for="company"></label>
+  <div class="col-sm-6 col-md-2">
+    <select id="Company" class="form-control" name="Company" onchange="javascript: callcustomer(this.options[this.selectedIndex].value)">
+<option value="">Select Staff</option>
+{{#each data}}
+<option value="{{this.agent_id}}">{{this.agent_name}}</option>
+{{/each}}
+</select>
+</div>
+</div>
+{{/forStaff}}
+
+<div id="staff"></div>
+<fieldset>
+  <legend>
+    <span style="font-size:24px"></span>
+</legend>
+<div id="customer"></div>
+</fieldset>>
+
+
+</body>
+
+</html>
